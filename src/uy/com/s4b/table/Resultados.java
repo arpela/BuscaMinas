@@ -114,9 +114,6 @@ public final class Resultados extends MainScreen {
 				int focused = view.getRowNumberWithFocus();
 				if (focused >= 0) {
 					Object[] datosMulta = (Object[]) ((TableModel) view .getModel()).getRow(focused);
-					String number = (String) datosMulta[CODIGO];
-					Dialog.alert("Esta ---> " + number);
-
 					DetalleMulta detalleMultaScreen = new DetalleMulta(datosMulta);
 					try {
 						UiApplication.getUiApplication().pushScreen(detalleMultaScreen);

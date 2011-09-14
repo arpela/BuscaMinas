@@ -5,13 +5,15 @@ package uy.com.s4b.table;
 
 import java.rmi.RemoteException;
 
-import uy.com.s4b.webservice.ArrayOfLocalizadorBoletinesInfo;
-import uy.com.s4b.webservice.LocalizadorBoletinesInfo;
-import uy.com.s4b.webservice.WebServiceSoap_Stub;
 import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
+import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.FontFamily;
 import net.rim.device.api.ui.Manager;
+import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
@@ -19,6 +21,13 @@ import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.decor.Background;
+import net.rim.device.api.ui.decor.BackgroundFactory;
+import net.rim.device.api.ui.decor.Border;
+import net.rim.device.api.ui.decor.BorderFactory;
+import uy.com.s4b.webservice.ArrayOfLocalizadorBoletinesInfo;
+import uy.com.s4b.webservice.LocalizadorBoletinesInfo;
+import uy.com.s4b.webservice.WebServiceSoap_Stub;
 
 /**
  * @author Pablo
@@ -35,10 +44,19 @@ public class Registro extends MainScreen {
 
 	public Registro() {
 		super(Manager.NO_VERTICAL_SCROLL);
-		setTitle("Darse de Alta");
-		
 		Manager mainManager = getMainManager();
 
+		XYEdges thickPadding = new XYEdges(10, 10, 10, 10);
+		Border bevelBorder = BorderFactory.createRoundedBorder(thickPadding, Border.STYLE_TRANSPARENT);
+		Background bitmapBackground = BackgroundFactory.createBitmapBackground(
+				Bitmap.getBitmapResource("input_datos.png"),
+				Background.POSITION_X_RIGHT, Background.POSITION_Y_CENTER, Background.REPEAT_NONE);
+
+		Background gradientBackground = BackgroundFactory.createLinearGradientBackground(
+				Color.GRAY, Color.GRAY, Color.WHITESMOKE, Color.WHITESMOKE);
+		
+		setTitle("Darse de Alta");
+		
 		String text = "Si sales publicado en algún boletín te avisaremos gratuitamente de inmediato:";
 		RichTextField textField = new RichTextField(text);
 		mainManager.add(textField);
@@ -46,15 +64,31 @@ public class Registro extends MainScreen {
 		add(new SeparatorField());
 
 		dni = new BasicEditField("DNI: ", "", 10, BasicEditField.FILTER_DEFAULT);
+		dni.setBackground(gradientBackground);
+		dni.setBorder(bevelBorder);
+		try {
+			FontFamily family = FontFamily.forName("BBCasual");
+			Font font = family.getFont(Font.PLAIN, 40);
+			dni.setFont(font);
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		mainManager.add(dni);
 
 		matricula = new BasicEditField("Matrícula: ", "", 9, BasicEditField.FILTER_DEFAULT);
+		matricula.setBackground(gradientBackground);
+		matricula.setBorder(bevelBorder);
 		mainManager.add(matricula);
 		
 		email = new BasicEditField("Email: ", "(para poder avisar)", 50, BasicEditField.FILTER_EMAIL);
+		email.setBackground(gradientBackground);
+		email.setBorder(bevelBorder);
 		mainManager.add(email);
 		
 		telefono = new BasicEditField("Teléfono: ", "(opcional)", 50, BasicEditField.FILTER_PHONE);
+		telefono.setBackground(gradientBackground);
+		telefono.setBorder(bevelBorder);
         mainManager.add(telefono);
         
         add(new SeparatorField());
