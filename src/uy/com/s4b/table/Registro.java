@@ -68,7 +68,7 @@ public class Registro extends MainScreen {
 		dni.setBorder(bevelBorder);
 		try {
 			FontFamily family = FontFamily.forName("BBCasual");
-			Font font = family.getFont(Font.PLAIN, 40);
+			Font font = family.getFont(Font.PLAIN, 40 );
 			dni.setFont(font);
 		} catch (ClassNotFoundException e1) {
 			// TODO Auto-generated catch block
