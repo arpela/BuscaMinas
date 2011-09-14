@@ -1,0 +1,37 @@
+RIM-COD-SHA1-4: 78 90 79 88 47 51 81 70 ca 0d ec 1f 0b 7d f5 85 2a f9 71 c9
+RIM-COD-SHA1-3: 22 21 57 4f 9c f6 be 62 63 c6 eb 34 58 cb d7 79 63 4a 69 fe
+RIM-COD-SHA1-2: 27 ee 6e 7d 91 ef 37 9b 11 6d 81 d5 77 f9 59 cc 98 62 56 2f
+RIM-COD-SHA1-1: b1 2a bd 14 45 ac a0 50 d4 45 63 9f 9e 83 34 13 79 b5 0a 37
+RIM-MIDlet-Flags-1: 0
+MIDlet-Jar-Size: 439191
+MIDlet-Name: busca_multas
+MIDlet-Jar-URL: busca_multas.jar
+MicroEdition-Configuration: CLDC-1.1
+RIM-COD-URL-7: pruebaTable-7.cod
+RIM-COD-Module-Dependencies: net_rim_cldc,net_rim_ui_api,net_rim_jaxrpc
+RIM-COD-URL-6: pruebaTable-6.cod
+RIM-COD-URL-5: pruebaTable-5.cod
+RIM-COD-URL-4: pruebaTable-4.cod
+RIM-COD-URL-3: pruebaTable-3.cod
+RIM-COD-URL-2: pruebaTable-2.cod
+RIM-COD-URL-1: pruebaTable-1.cod
+RIM-COD-Size-7: 31912
+RIM-COD-Size-6: 50304
+RIM-COD-Size-5: 50304
+RIM-COD-Size-4: 50304
+RIM-COD-Size-3: 57008
+RIM-COD-Module-Name: pruebaTable
+RIM-COD-Size-2: 55044
+RIM-COD-Size-1: 48980
+RIM-COD-SHA1: 6f f5 47 fd c3 96 97 09 c5 6b 1b ae 79 52 ce ad 71 b1 a0 38
+RIM-COD-Size: 56592
+MicroEdition-Profile: MIDP-2.0
+MIDlet-Vendor: Prueba S4B
+MIDlet-1: PruebaTable,img/icon.png,
+RIM-COD-URL: pruebaTable.cod
+Manifest-Version: 1.0
+MIDlet-Version: 1.0.0
+RIM-COD-SHA1-7: 01 26 2d 9a 14 92 00 a2 68 00 67 73 9c a5 25 6b 1d 14 49 00
+RIM-COD-Creation-Time: 1315969326
+RIM-COD-SHA1-6: 31 df b6 d9 37 40 df 61 da 9e 8f 5c 16 9f da 8f 9d 2a 7e 19
+RIM-COD-SHA1-5: ae 3f cc fc 30 69 d3 73 dd b4 81 7d bf 27 da 49 0c e6 45 45
