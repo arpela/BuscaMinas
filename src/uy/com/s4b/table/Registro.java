@@ -5,6 +5,7 @@ package uy.com.s4b.table;
 
 import java.rmi.RemoteException;
 
+
 import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
@@ -13,6 +14,8 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.FontFamily;
 import net.rim.device.api.ui.Manager;
+import net.rim.device.api.ui.Screen;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -34,6 +37,7 @@ import uy.com.s4b.webservice.WebServiceSoap_Stub;
  *
  */
 public class Registro extends MainScreen {
+	private static Screen registroScreen;
 
 	protected static final int BLACKBERRY = 4;
 	private BasicEditField dni;
@@ -44,6 +48,18 @@ public class Registro extends MainScreen {
 
 	public Registro() {
 		super(Manager.NO_VERTICAL_SCROLL);
+		registroScreen = this;
+		ButtonField volverBtn = new ButtonField("Volver");
+		volverBtn.setCommand(new Command(new CommandHandler() {
+			
+			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+				UiApplication.getUiApplication().pushScreen(new Busqueda());
+				UiApplication.getUiApplication().popScreen(registroScreen);
+			}
+		}));
+		add(volverBtn);
+		
+		
 		Manager mainManager = getMainManager();
 
 		XYEdges thickPadding = new XYEdges(10, 10, 10, 10);

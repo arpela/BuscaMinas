@@ -23,6 +23,7 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Manager;
+import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.XYRect;
@@ -49,6 +50,8 @@ import uy.com.s4b.webservice.LocalizadorBoletinesInfo;
 import uy.com.s4b.webservice.WebServiceSoap_Stub;
 
 public final class Resultados extends MainScreen {
+	private static Screen resultado;
+	
 	private SortedTableModel _tableModel;
 	
 	private static final int ROW_HEIGHT = 25;
@@ -72,21 +75,29 @@ public final class Resultados extends MainScreen {
 	 */
 	public Resultados(String dni, String matricula ) {
 		super(Manager.NO_VERTICAL_SCROLL);
+		resultado = this;
 
 		setTitle("Resultados");
 		
-		ButtonField registro = new ButtonField("Dar alta");
-//		Bitmap btn_dardealta_on = Bitmap.getBitmapResource("btn_dardealta_on.png");
-//		Background registroBackground = BackgroundFactory.createBitmapBackground(btn_dardealta_on);
-//		registro.setBackground(registroBackground);
-		registro.setCommand(new Command(new CommandHandler() {
+		ButtonField volverBtn = new ButtonField("Volver");
+		volverBtn.setCommand(new Command(new CommandHandler() {
+			
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
-				UiApplication.getUiApplication().pushScreen(new Registro());
-				
+				UiApplication.getUiApplication().pushScreen(new Busqueda());
+				UiApplication.getUiApplication().popScreen(resultado);
 			}
 		}));
-		add(registro);
+		
+		ButtonField registroBtn = new ButtonField("Dar alta");
+		registroBtn.setCommand(new Command(new CommandHandler() {
+			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+				UiApplication.getUiApplication().pushScreen(new Registro());
+				UiApplication.getUiApplication().popScreen(resultado);
+			}
+		}));
+		add(volverBtn);
 		add(new LabelField("Resultados", LabelField.FIELD_HCENTER));
+		add(registroBtn);
 		add(new SeparatorField());
 
 		// Initialize the model if it has not yet been loaded

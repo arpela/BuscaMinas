@@ -1,7 +1,7 @@
-MIDlet-Name: busca_multas
+MIDlet-Name: blackberryGit
 MIDlet-Version: 1.0.0
 MIDlet-Vendor: Prueba S4B
-MIDlet-Jar-URL: busca_multas.jar
+MIDlet-Jar-URL: blackberryGit.jar
 MIDlet-Jar-Size: 0
 MicroEdition-Profile: MIDP-2.0
 MicroEdition-Configuration: CLDC-1.1

@@ -4,7 +4,7 @@ import net.rim.device.api.ui.UiApplication;
 
 
 /**
- * @author arpela
+ * @author Pablo
  *
  */
 public class Run extends UiApplication {
