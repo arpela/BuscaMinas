@@ -16,9 +16,7 @@ import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.RichTextField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.table.DataTemplate;
 import net.rim.device.api.ui.component.table.RegionStyles;
 import net.rim.device.api.ui.component.table.TableController;
@@ -26,6 +24,7 @@ import net.rim.device.api.ui.component.table.TableModel;
 import net.rim.device.api.ui.component.table.TableView;
 import net.rim.device.api.ui.component.table.TemplateColumnProperties;
 import net.rim.device.api.ui.component.table.TemplateRowProperties;
+import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
@@ -37,6 +36,11 @@ import net.rim.device.api.ui.decor.BorderFactory;
 public class DetalleMulta extends MainScreen {
 	private static Screen detalleMultaScreen;
 	
+	// Create and apply style
+	private RegionStyles style = new RegionStyles(BorderFactory.createSimpleBorder(
+			new XYEdges(0, 0, 0, 0), Border.STYLE_TRANSPARENT), null, null, null,
+			RegionStyles.ALIGN_CENTER, RegionStyles.ALIGN_TOP);
+	
 	private TableModel _tableModel;
 	
 	private final static int BITMAP_LOGO 		= 0;
@@ -45,51 +49,48 @@ public class DetalleMulta extends MainScreen {
 	private final static int DNI				= 3;
 	private final static int MATRICULA 			= 4;
 	private final static int RECURRIDA 			= 5;
-	private final static int BITMAP_BOTON 		= 6;
-	private final static int BITMAP_IMPORTANTE 	= 7;
-	
-	public DetalleMulta(Object[] datosMulta) {
+
+	public DetalleMulta(Object[] datosMulta, Screen callbackScreen) {
 		super(Manager.NO_VERTICAL_SCROLL);
 		detalleMultaScreen = this;
-		ButtonField volverBtn = new ButtonField("Volver");
-		volverBtn.setCommand(new Command(new CommandHandler() {
-			
-			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
-				UiApplication.getUiApplication().pushScreen(new Busqueda());
-				UiApplication.getUiApplication().popScreen(detalleMultaScreen);
-			}
-		}));
-		
-		ButtonField registroBtn = new ButtonField("Dar alta");
-		registroBtn.setCommand(new Command(new CommandHandler() {
-			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
-				UiApplication.getUiApplication().pushScreen(new Registro());
-				UiApplication.getUiApplication().popScreen(detalleMultaScreen);
-			}
-		}));
-		add(volverBtn);
-		add(new LabelField("Multa", LabelField.FIELD_HCENTER));
-		add(registroBtn);
-		
 		setTitle("Detalle de multa");
-		add(new SeparatorField());
 		
+		add(getHeaderGridFieldManager());
+
+		add(getDetailsTableView(datosMulta));
+		
+		
+		/**
+		 * Posiblemente haya que ir contra el WS con los datos seleccionados....
+		 * TODO confirmar
+		 */
+//		ButtonField darAlta = new ButtonField("Dar Alta", ButtonField.FIELD_HCENTER | ButtonField.CONSUME_CLICK);
+//		darAlta.setCommand(new Command(new CommandHandler() {
+//			
+//			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+//				UiApplication.getUiApplication().pushScreen(new Registro());
+//				UiApplication.getUiApplication().popScreen(detalleMultaScreen);
+//			}
+//		}));
+//		add(darAlta);
+		
+		Bitmap bitmap_importante = Bitmap.getBitmapResource("importante.png");
+		BitmapField importante = new BitmapField(bitmap_importante, BitmapField.FIELD_HCENTER);
+		add(importante);
+	}
+
+	/**
+	 * 
+	 * @param datosMulta
+	 * @return Retorna una tabla con los detalles de la multa
+	 */
+	private TableView getDetailsTableView(Object[] datosMulta) {
 		_tableModel = new TableModel();
 		_tableModel.addRow(getTableModel(datosMulta));
 
-		// Create and apply style
-		RegionStyles style = new RegionStyles(BorderFactory.createSimpleBorder(
-				new XYEdges(0, 0, 0, 0), Border.STYLE_TRANSPARENT), null, null, null,
-				RegionStyles.ALIGN_LEFT, RegionStyles.ALIGN_TOP);
-		
-		
-		// Create the view and controller
 		TableView tableView = new TableView(_tableModel);
 		TableController tableController = new TableController(_tableModel, tableView);
-		// Set the controller focus policy to highlight rows
 		tableController.setFocusPolicy(TableController.ROW_FOCUS);
-		
-		// Set the behavior of the controller when a table item is clicked
 		tableController.setCommand(new CommandHandler() {
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
 //				TableView view = (TableView) context;
@@ -98,10 +99,10 @@ public class DetalleMulta extends MainScreen {
 		
 		tableView.setController(tableController);
 		
-		// Create a DataTemplate that suppresses the third column
 		DataTemplate dataTemplate = new DataTemplate(tableView, 5, 2) {
 			public Field[] getDataFields(int modelRowIndex) {
 				Object[] data = (Object[]) ((TableModel) getView().getModel()).getRow(modelRowIndex);
+				
 				Field[] fields = new Field[6];
 				fields[BITMAP_LOGO] = new BitmapField((Bitmap) data[BITMAP_LOGO], BitmapField.VCENTER | BitmapField.HCENTER);
 				fields[SANCION_PUNTOS] = new RichTextField((String) data[SANCION_PUNTOS], Field.NON_FOCUSABLE| DrawStyle.HCENTER);
@@ -109,24 +110,18 @@ public class DetalleMulta extends MainScreen {
 				fields[DNI] = new RichTextField((String) data[DNI], Field.NON_FOCUSABLE);
 				fields[MATRICULA] = new RichTextField((String) data[MATRICULA], Field.NON_FOCUSABLE);
 				fields[RECURRIDA] = new RichTextField((String) data[RECURRIDA], Field.NON_FOCUSABLE);
-//				fields[BITMAP_BOTON] = new BitmapField((Bitmap) data[BITMAP_BOTON], BitmapField.VCENTER | BitmapField.HCENTER);
-//				fields[BITMAP_IMPORTANTE] = new BitmapField((Bitmap) data[BITMAP_IMPORTANTE], BitmapField.VCENTER | BitmapField.HCENTER);
 				return fields;
 			}
 		};
-		
-		// Set up regions
+
 		dataTemplate.createRegion(new XYRect(0, 0, 1, 5), style);
 		dataTemplate.createRegion(new XYRect(1, 0, 1, 1), style);
 		dataTemplate.createRegion(new XYRect(1, 1, 1, 1), style);
 		dataTemplate.createRegion(new XYRect(1, 2, 1, 1), style);
 		dataTemplate.createRegion(new XYRect(1, 3, 1, 1), style);
 		dataTemplate.createRegion(new XYRect(1, 4, 1, 1), style);
-//		dataTemplate.createRegion(new XYRect(0, 5, 2, 1), style);
-//		dataTemplate.createRegion(new XYRect(0, 6, 2, 1), style);
 
-		// Specify the size of each column by percentage, and the height of a
-		// row
+		// Specify the size of each column by percentage, and the height of a row
 		dataTemplate.setColumnProperties(0, new TemplateColumnProperties(25,TemplateColumnProperties.PERCENTAGE_WIDTH));
 		dataTemplate.setColumnProperties(1, new TemplateColumnProperties(75,TemplateColumnProperties.PERCENTAGE_WIDTH));
 		dataTemplate.setRowProperties(0, new TemplateRowProperties(30));
@@ -134,15 +129,12 @@ public class DetalleMulta extends MainScreen {
 		dataTemplate.setRowProperties(2, new TemplateRowProperties(30));
 		dataTemplate.setRowProperties(3, new TemplateRowProperties(30));
 		dataTemplate.setRowProperties(4, new TemplateRowProperties(40));
-//		dataTemplate.setRowProperties(5, new TemplateRowProperties(80));
-//		dataTemplate.setRowProperties(6, new TemplateRowProperties(581));
 
 		// Apply the template to the view
 		tableView.setDataTemplate(dataTemplate);
-		
+		tableView.setBorder(BorderFactory.createSimpleBorder(new XYEdges(), Border.STYLE_TRANSPARENT));
 		dataTemplate.useFixedHeight(true);
-
-		add(tableView);
+		return tableView;
 	}
 
 	private Object getTableModel(Object[] datosMulta) {
@@ -153,9 +145,6 @@ public class DetalleMulta extends MainScreen {
 		String dni = (String) datosMulta[Resultados.DNI];
 		String matricula = (String) datosMulta[Resultados.MATRICULA];
 		String recurrible = (String) datosMulta[Resultados.RECURRIBLE];
-//		Bitmap bitmap_boton = Bitmap.getBitmapResource("btn_quieres_on.png");
-//		Bitmap bitmap_importante = Bitmap.getBitmapResource("fondo.png");
-		
 		
 		Object[] result = new Object[]{
 				bitmap_logo,
@@ -166,5 +155,45 @@ public class DetalleMulta extends MainScreen {
 				"Esta multa está " + recurrible + " para ser recurrida"
 		}; 
 		return result;
+	}
+	
+	private GridFieldManager getHeaderGridFieldManager(){
+		Field[] headerFields = getHeaderFields();
+		GridFieldManager gridFieldManager = new GridFieldManager(1, 3, GridFieldManager.FIELD_LEFT | GridFieldManager.FIELD_HCENTER | GridFieldManager.FIELD_RIGHT);
+		
+		for (int i = 0; i < headerFields.length; i++) {
+			gridFieldManager.insert(headerFields[i], i);
+		}
+		return gridFieldManager;
+	}
+	
+	private Field[] getHeaderFields(){
+		ButtonField volverBtn = new ButtonField("Volver", ButtonField.FIELD_LEFT);
+		volverBtn.setCommand(new Command(new CommandHandler() {
+			
+			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+				UiApplication.getUiApplication().popScreen(detalleMultaScreen);
+			}
+		}));
+		RichTextField multa = new RichTextField("        Multa        ", RichTextField.FIELD_HCENTER | RichTextField.FIELD_VCENTER){
+		    public int getPreferredWidth() {
+		        return this.getFont().getAdvance(this.getLabel() + this.getText());
+		    }
+		    public void layout(int width, int height) {
+		    	super.layout(getPreferredWidth(), getPreferredHeight());
+		        setExtent(getPreferredWidth(), getPreferredHeight());
+		    }
+		};
+		
+		ButtonField registroBtn = new ButtonField("Dar alta", ButtonField.FIELD_RIGHT);
+		registroBtn.setCommand(new Command(new CommandHandler() {
+			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+				UiApplication.getUiApplication().pushScreen(new Registro());
+				UiApplication.getUiApplication().popScreen(detalleMultaScreen);
+			}
+		}));
+		
+		Field[] headerFields = new Field[]{volverBtn, multa, registroBtn};
+		return headerFields;
 	}
 }

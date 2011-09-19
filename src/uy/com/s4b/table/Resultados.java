@@ -30,29 +30,26 @@ import net.rim.device.api.ui.XYRect;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
-import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.RichTextField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.table.DataTemplate;
 import net.rim.device.api.ui.component.table.RegionStyles;
-import net.rim.device.api.ui.component.table.SortedTableModel;
 import net.rim.device.api.ui.component.table.TableController;
 import net.rim.device.api.ui.component.table.TableModel;
 import net.rim.device.api.ui.component.table.TableView;
 import net.rim.device.api.ui.component.table.TemplateColumnProperties;
 import net.rim.device.api.ui.component.table.TemplateRowProperties;
+import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
-import net.rim.device.api.util.StringComparator;
 import uy.com.s4b.webservice.ArrayOfLocalizadorBoletinesInfo;
 import uy.com.s4b.webservice.LocalizadorBoletinesInfo;
 import uy.com.s4b.webservice.WebServiceSoap_Stub;
 
 public final class Resultados extends MainScreen {
-	private static Screen resultado;
+	private static Screen resultadosScreen;
 	
-	private SortedTableModel _tableModel;
+	private TableModel _tableModel;
 	
 	private static final int ROW_HEIGHT = 25;
 
@@ -75,37 +72,15 @@ public final class Resultados extends MainScreen {
 	 */
 	public Resultados(String dni, String matricula ) {
 		super(Manager.NO_VERTICAL_SCROLL);
-		resultado = this;
-
+		resultadosScreen = this;
 		setTitle("Resultados");
 		
-		ButtonField volverBtn = new ButtonField("Volver");
-		volverBtn.setCommand(new Command(new CommandHandler() {
-			
-			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
-				UiApplication.getUiApplication().pushScreen(new Busqueda());
-				UiApplication.getUiApplication().popScreen(resultado);
-			}
-		}));
+		add(getHeaderGridFieldManager());
 		
-		ButtonField registroBtn = new ButtonField("Dar alta");
-		registroBtn.setCommand(new Command(new CommandHandler() {
-			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
-				UiApplication.getUiApplication().pushScreen(new Registro());
-				UiApplication.getUiApplication().popScreen(resultado);
-			}
-		}));
-		add(volverBtn);
-		add(new LabelField("Resultados", LabelField.FIELD_HCENTER));
-		add(registroBtn);
-		add(new SeparatorField());
-
 		// Initialize the model if it has not yet been loaded
-		_tableModel = new SortedTableModel(StringComparator.getInstance(true),FECHA_INFRACCION);
+		_tableModel = new TableModel();
 		
-		/* ########################################### */
 		cargoDeWSDL(dni, matricula);
-		/* ########################################### */
 	
 		// Create and apply style
 		RegionStyles style = new RegionStyles(BorderFactory.createSimpleBorder(
@@ -125,7 +100,7 @@ public final class Resultados extends MainScreen {
 				int focused = view.getRowNumberWithFocus();
 				if (focused >= 0) {
 					Object[] datosMulta = (Object[]) ((TableModel) view .getModel()).getRow(focused);
-					DetalleMulta detalleMultaScreen = new DetalleMulta(datosMulta);
+					DetalleMulta detalleMultaScreen = new DetalleMulta(datosMulta, resultadosScreen);
 					try {
 						UiApplication.getUiApplication().pushScreen(detalleMultaScreen);
 					} catch (Exception e) {
@@ -139,7 +114,6 @@ public final class Resultados extends MainScreen {
 
 		// Create a DataTemplate that suppresses the third column
 		DataTemplate dataTemplate = new DataTemplate(tableView, 3, 3) {
-			
 			public Field[] getDataFields(int modelRowIndex) {
 				Object[] data = (Object[]) ((TableModel) getView().getModel()).getRow(modelRowIndex);
 				Field[] fields = new Field[7];
@@ -174,15 +148,11 @@ public final class Resultados extends MainScreen {
 
 		// Apply the template to the view
 		tableView.setDataTemplate(dataTemplate);
-		
 		dataTemplate.useFixedHeight(true);
-
 		add(tableView);
 	}
 
 	private void cargoDeWSDL(String dniString, String matString) {
-//		String dniString = "11810233D";
-//		String matString = "0000BBB";
 		WebServiceSoap_Stub webservices = new WebServiceSoap_Stub();
 		try {
 			try {
@@ -230,5 +200,47 @@ public final class Resultados extends MainScreen {
 		} catch (Exception e) {
 			Dialog.alert(e.getMessage());
 		}
+	}
+	
+	private GridFieldManager getHeaderGridFieldManager(){
+		Field[] headerFields = getHeaderFields();
+		GridFieldManager gridFieldManager = new GridFieldManager(1, 3, GridFieldManager.FIELD_LEFT | GridFieldManager.FIELD_HCENTER | GridFieldManager.FIELD_RIGHT);
+		
+		for (int i = 0; i < headerFields.length; i++) {
+			gridFieldManager.insert(headerFields[i], i);
+		}
+		return gridFieldManager;
+	}
+	
+	private Field[] getHeaderFields(){
+		ButtonField volverBtn = new ButtonField("Volver", ButtonField.FIELD_LEFT);
+		volverBtn.setCommand(new Command(new CommandHandler() {
+			
+			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+				UiApplication.getUiApplication().pushScreen(new Busqueda());
+				UiApplication.getUiApplication().popScreen(resultadosScreen);
+			}
+		}));
+		
+		RichTextField multa = new RichTextField("     Resultados      ", RichTextField.FIELD_HCENTER | RichTextField.FIELD_VCENTER){
+		    public int getPreferredWidth() {
+		        return this.getFont().getAdvance(this.getLabel() + this.getText());
+		    }
+		    public void layout(int width, int height) {
+		    	super.layout(getPreferredWidth(), getPreferredHeight());
+		        setExtent(getPreferredWidth(), getPreferredHeight());
+		    }
+		};
+		
+		ButtonField registroBtn = new ButtonField("Dar alta", ButtonField.FIELD_RIGHT);
+		registroBtn.setCommand(new Command(new CommandHandler() {
+			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+				UiApplication.getUiApplication().pushScreen(new Registro());
+				UiApplication.getUiApplication().popScreen(resultadosScreen);
+			}
+		}));
+		
+		Field[] headerFields = new Field[]{volverBtn, multa, registroBtn};
+		return headerFields;
 	}
 }

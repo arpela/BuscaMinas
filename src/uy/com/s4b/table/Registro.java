@@ -5,14 +5,10 @@ package uy.com.s4b.table;
 
 import java.rmi.RemoteException;
 
-
 import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
-import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Color;
-import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.FontFamily;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
@@ -21,8 +17,10 @@ import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.ui.component.EmailAddressEditField;
+import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.RichTextField;
-import net.rim.device.api.ui.component.SeparatorField;
+import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.decor.Background;
 import net.rim.device.api.ui.decor.BackgroundFactory;
@@ -62,14 +60,10 @@ public class Registro extends MainScreen {
 		
 		Manager mainManager = getMainManager();
 
-		XYEdges thickPadding = new XYEdges(10, 10, 10, 10);
-		Border bevelBorder = BorderFactory.createRoundedBorder(thickPadding, Border.STYLE_TRANSPARENT);
-		Background bitmapBackground = BackgroundFactory.createBitmapBackground(
-				Bitmap.getBitmapResource("input_datos.png"),
-				Background.POSITION_X_RIGHT, Background.POSITION_Y_CENTER, Background.REPEAT_NONE);
-
-		Background gradientBackground = BackgroundFactory.createLinearGradientBackground(
-				Color.GRAY, Color.GRAY, Color.WHITESMOKE, Color.WHITESMOKE);
+		XYEdges margin = new XYEdges(8, 0, 10, 0);
+		XYEdges edges = new XYEdges(3, 3, 2, 2);
+		Border border = BorderFactory.createRoundedBorder(edges, Color.GRAY, Border.STYLE_FILLED);
+		Background gradient = BackgroundFactory.createLinearGradientBackground(Color.WHITE, Color.WHITE, Color.LIGHTGRAY, Color.LIGHTGRAY);
 		
 		setTitle("Darse de Alta");
 		
@@ -77,43 +71,53 @@ public class Registro extends MainScreen {
 		RichTextField textField = new RichTextField(text);
 		mainManager.add(textField);
 		
-		add(new SeparatorField());
+		dni = new BasicEditField("", "", 10, BasicEditField.FILTER_DEFAULT);
+		dni.setBackground(gradient);
+		dni.setBorder(border);
+		dni.setMargin(margin);
 
-		dni = new BasicEditField("DNI: ", "", 10, BasicEditField.FILTER_DEFAULT);
-		dni.setBackground(gradientBackground);
-		dni.setBorder(bevelBorder);
-		try {
-			FontFamily family = FontFamily.forName("BBCasual");
-			Font font = family.getFont(Font.PLAIN, 40 );
-			dni.setFont(font);
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		mainManager.add(dni);
-
-		matricula = new BasicEditField("Matrícula: ", "", 9, BasicEditField.FILTER_DEFAULT);
-		matricula.setBackground(gradientBackground);
-		matricula.setBorder(bevelBorder);
-		mainManager.add(matricula);
+		matricula = new BasicEditField("", "", 9, BasicEditField.FILTER_DEFAULT);
+		matricula.setBackground(gradient);
+		matricula.setBorder(border);
+		matricula.setMargin(margin);
 		
-		email = new BasicEditField("Email: ", "(para poder avisar)", 50, BasicEditField.FILTER_EMAIL);
-		email.setBackground(gradientBackground);
-		email.setBorder(bevelBorder);
-		mainManager.add(email);
+		email = new EmailAddressEditField("", "(para poder avisar)", 50, BasicEditField.FILTER_EMAIL);
+		email.setBackground(gradient);
+		email.setBorder(border);
+		email.setMargin(margin);
 		
-		telefono = new BasicEditField("Teléfono: ", "(opcional)", 50, BasicEditField.FILTER_PHONE);
-		telefono.setBackground(gradientBackground);
-		telefono.setBorder(bevelBorder);
-        mainManager.add(telefono);
+		telefono = new BasicEditField("", "(opcional)", 50, BasicEditField.FILTER_PHONE);
+		telefono.setBackground(gradient);
+		telefono.setBorder(border);
+		telefono.setMargin(margin);
         
-        add(new SeparatorField());
+        GridFieldManager grid = new GridFieldManager(4, 2, 0);
+        LabelField dniLbl = new LabelField("DNI ", FIELD_RIGHT);
+		grid.insert(dniLbl, 0, FIELD_RIGHT);
+        grid.insert(dni, 1);
+        
+        LabelField matriculaLbl = new LabelField("Matrícula ", FIELD_RIGHT);
+		grid.insert(matriculaLbl, 2, FIELD_RIGHT);
+        grid.insert(matricula, 3);
+        
+        LabelField emailLbl = new LabelField("Email ", FIELD_RIGHT);
+		grid.insert(emailLbl, 4, FIELD_RIGHT);
+        grid.insert(email, 5);
+       
+        LabelField telefonoLbl = new LabelField("Teléfono ", FIELD_RIGHT);
+        grid.insert(telefonoLbl, 6, FIELD_RIGHT);
+        grid.insert(telefono, 7);
+        
+        mainManager.add(grid);
+        
         String acgText = "Sí, he leído y acepto las Condiciones Generales";
         final CheckboxField aceptaCondicionesGenerales = new CheckboxField(acgText, false);
+        aceptaCondicionesGenerales.setMargin(margin);
         mainManager.add(aceptaCondicionesGenerales);
 
         String qriText = "Sí, acepto recibir información sobre los productos comercializados por Dvuelta, Asistencia Legal S.L.";
         quiereRecibirInfo = new CheckboxField(qriText, false);
+        quiereRecibirInfo.setMargin(margin);
         mainManager.add(quiereRecibirInfo);
 
         ButtonField darseDeAltaBtn = new ButtonField("Darse de Alta", ButtonField.CONSUME_CLICK);
@@ -150,8 +154,6 @@ public class Registro extends MainScreen {
 			
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
 				DatosRegistro datos = (DatosRegistro) context;
-				Dialog.alert(datos.getEmail() + " " + datos.isAceptaCondiciones() + " " + datos.isRecibirInfo());
-				
 				try {
 					ArrayOfLocalizadorBoletinesInfo resultado = grabarDatos(datos);
 					LocalizadorBoletinesInfo listaInfor [] = resultado.getLocalizadorBoletinesInfo();

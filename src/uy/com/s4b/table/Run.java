@@ -2,7 +2,6 @@ package uy.com.s4b.table;
 
 import net.rim.device.api.ui.UiApplication;
 
-
 /**
  * @author Pablo
  *
@@ -14,6 +13,6 @@ public class Run extends UiApplication {
 	}
 
 	public Run() {
-		pushScreen(new Busqueda());
+		pushScreen(new InicioScreen());
 	}
 }

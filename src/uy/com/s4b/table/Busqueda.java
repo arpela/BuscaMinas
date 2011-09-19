@@ -3,13 +3,23 @@ package uy.com.s4b.table;
 import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
+import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.decor.Background;
+import net.rim.device.api.ui.decor.BackgroundFactory;
+import net.rim.device.api.ui.decor.Border;
+import net.rim.device.api.ui.decor.BorderFactory;
 
 /**
  * 
@@ -25,17 +35,47 @@ public class Busqueda extends MainScreen {
 	public Busqueda() {
 		super(Manager.NO_VERTICAL_SCROLL);
 		busquedaScreen = this;
-		Manager mainManager = getMainManager();
+		Bitmap logoBuscaMultas = Bitmap.getBitmapResource("logo_buscaMultas.png");
+		BitmapField bitmapLogo = new BitmapField(logoBuscaMultas, BitmapField.FIELD_HCENTER);
 		
-		dni = new BasicEditField("DNI: ", "11810233D", 10, BasicEditField.FILTER_DEFAULT);
-		mainManager.add(dni);
+		LabelField dniLF = new LabelField("DNI ", NON_FOCUSABLE);
+		LabelField matriculaLF = new LabelField("Matrícula ", NON_FOCUSABLE);
+		dni = new BasicEditField("", "11810233D", 9, BasicEditField.FILTER_DEFAULT | BasicEditField.NO_NEWLINE);
+		matricula = new BasicEditField("", "0000BBB", 9, BasicEditField.FILTER_DEFAULT | BasicEditField.NO_NEWLINE);
 		
-		matricula = new BasicEditField("Matrícula: ", "0000BBB", 9, BasicEditField.FILTER_DEFAULT);
-		mainManager.add(matricula);
+		XYEdges margin = new XYEdges(10, 0, 10, 0);
+		XYEdges edges = new XYEdges(2, 1, 1, 1);
+		Border border = BorderFactory.createRoundedBorder(edges, Color.GRAY, Border.STYLE_FILLED);
+		Background gradient = BackgroundFactory.createLinearGradientBackground(Color.WHITE, Color.WHITE, Color.LIGHTGRAY, Color.LIGHTGRAY);
 		
-		ButtonField buscar = new ButtonField("Buscar Multas", ButtonField.CONSUME_CLICK);
-        mainManager.add(buscar);
-        
+		dni.setBackground(gradient);
+		matricula.setBackground(gradient);
+		
+		dni.setBorder(border);
+		matricula.setBorder(border);
+		
+		dni.setMargin(margin);
+		matricula.setMargin(margin);
+		
+		GridFieldManager grid1 = new GridFieldManager(1, 1, 0);
+		grid1.insert(bitmapLogo, 0, FIELD_HCENTER);
+		add(grid1);
+
+		GridFieldManager grid2 = new GridFieldManager(2, 2, 0);
+		grid2.insert(dniLF, 0, FIELD_RIGHT);
+		grid2.insert(dni, 1);
+		grid2.insert(matriculaLF, 2, FIELD_RIGHT);
+		grid2.insert(matricula, 3);
+		add(grid2);
+		
+		add(new BitmapField(Bitmap.getBitmapResource("whitespace.png")));
+		
+		ButtonField buscar = new ButtonField("Buscar Multas");
+		GridFieldManager grid3 = new GridFieldManager(2 , 1, 0);
+		grid3.insert(buscar, 0, FIELD_HCENTER);
+		grid3.insert(new BitmapField(Bitmap.getBitmapResource("leyenda_busqueda.png")), 1, FIELD_HCENTER);
+		add(grid3);
+		
         DatosBusqueda datosBusqueda = new DatosBusqueda() {
 			
 			public String getMatricula() {
@@ -49,8 +89,6 @@ public class Busqueda extends MainScreen {
 		
 		buscar.setCommandContext(datosBusqueda);
 		buscar.setCommand(new Command(new CommandHandler() {
-			
-
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
 				DatosBusqueda datosBusqueda = (DatosBusqueda) context;
 				if (datosBusqueda.getDni().equals("") || datosBusqueda.getMatricula().equals("")){
