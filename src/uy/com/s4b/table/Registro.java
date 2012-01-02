@@ -8,12 +8,18 @@ import java.rmi.RemoteException;
 import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.Screen;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
@@ -47,16 +53,12 @@ public class Registro extends MainScreen {
 	public Registro() {
 		super(Manager.NO_VERTICAL_SCROLL);
 		registroScreen = this;
-		ButtonField volverBtn = new ButtonField("Volver");
-		volverBtn.setCommand(new Command(new CommandHandler() {
-			
-			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
-				UiApplication.getUiApplication().pushScreen(new Busqueda());
-				UiApplication.getUiApplication().popScreen(registroScreen);
-			}
-		}));
-		add(volverBtn);
 		
+		add(getHeaderGridFieldManager());
+		
+		Bitmap separator = Bitmap.getBitmapResource("whitespace.png");
+		BitmapField withespace = new BitmapField(separator);
+		add(withespace);
 		
 		Manager mainManager = getMainManager();
 
@@ -68,7 +70,7 @@ public class Registro extends MainScreen {
 		setTitle("Darse de Alta");
 		
 		String text = "Si sales publicado en algún boletín te avisaremos gratuitamente de inmediato:";
-		RichTextField textField = new RichTextField(text);
+		RichTextField textField = new GreyRichTextField(text);
 		mainManager.add(textField);
 		
 		dni = new BasicEditField("", "", 10, BasicEditField.FILTER_DEFAULT);
@@ -110,17 +112,17 @@ public class Registro extends MainScreen {
         
         mainManager.add(grid);
         
-        String acgText = "Sí, he leído y acepto las Condiciones Generales";
-        final CheckboxField aceptaCondicionesGenerales = new CheckboxField(acgText, false);
+        String acgText = "Sí, he leído y acepto las Condiciones Generales*";
+        final CheckboxField aceptaCondicionesGenerales = new GreyCheckboxField(acgText, false);
         aceptaCondicionesGenerales.setMargin(margin);
         mainManager.add(aceptaCondicionesGenerales);
 
         String qriText = "Sí, acepto recibir información sobre los productos comercializados por Dvuelta, Asistencia Legal S.L.";
-        quiereRecibirInfo = new CheckboxField(qriText, false);
+        quiereRecibirInfo = new GreyCheckboxField(qriText, false);
         quiereRecibirInfo.setMargin(margin);
         mainManager.add(quiereRecibirInfo);
 
-        ButtonField darseDeAltaBtn = new ButtonField("Darse de Alta", ButtonField.CONSUME_CLICK);
+        ButtonField darseDeAltaBtn = new ButtonField("Darse de Alta", ButtonField.CONSUME_CLICK | 0x00000010);
         mainManager.add(darseDeAltaBtn);
         
         DatosRegistro datos = new DatosRegistro(){
@@ -183,6 +185,49 @@ public class Registro extends MainScreen {
 		}));
 	}
 	
+	private GridFieldManager getHeaderGridFieldManager(){
+		Field[] headerFields = getHeaderFields();
+		GridFieldManager gridFieldManager = new GridFieldManager(1, 2, GridFieldManager.FIELD_LEFT);
+		
+		for (int i = 0; i < headerFields.length; i++) {
+			gridFieldManager.insert(headerFields[i], i);
+		}
+		Background background = BackgroundFactory.createBitmapBackground(Bitmap.getBitmapResource(Util.getImageByResolution("barra_registro")));
+		gridFieldManager.setBackground(background);
+		return gridFieldManager;
+	}
+	
+	private Field[] getHeaderFields() {
+		ButtonField volverBtn = new ButtonField("Volver"){
+			public int getPreferredWidth(){
+				return 70;
+			}
+			public void layout(int width, int height){
+				super.layout(getPreferredWidth(), getPreferredHeight());
+				setExtent(getPreferredWidth(), getPreferredHeight());
+			}
+		};
+		volverBtn.setCommand(new Command(new CommandHandler() {
+			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+				UiApplication.getUiApplication().pushScreen(new Busqueda());
+				UiApplication.getUiApplication().popScreen(registroScreen);
+			}
+		}));
+		
+		RichTextField registro = new RichTextField(){
+			public int getPreferredWidth(){
+				return 250;
+			}
+			public void layout(int width, int height){
+				super.layout(getPreferredWidth(), getPreferredHeight());
+				setExtent(getPreferredWidth(), getPreferredHeight());
+			}
+		};
+		
+		Field[] headerFields = new Field[]{volverBtn, registro};
+		return headerFields;
+	}
+
 	interface DatosRegistro {
 		public String getDni();
 		public String getMatricula();
@@ -190,5 +235,32 @@ public class Registro extends MainScreen {
 		public String getTelefono();
 		public boolean isAceptaCondiciones();
 		public boolean isRecibirInfo();
+	}
+	
+	public class GreyCheckboxField extends CheckboxField{
+	
+		public GreyCheckboxField(String label, boolean checked) {
+			super(label, checked);
+		}
+
+		protected void paint(Graphics graphics) {
+			graphics.setColor(Color.DIMGRAY);
+			super.paint(graphics);
+			Font font = graphics.getFont().derive(Font.PLAIN, 7, Ui.UNITS_pt);
+			this.setFont(font);
+		}
+	}
+	public class GreyRichTextField extends RichTextField{
+		
+		public GreyRichTextField(String text) {
+			super(text);
+		}
+		
+		protected void paint(Graphics graphics) {
+			graphics.setColor(Color.DIMGRAY);
+			super.paint(graphics);
+			Font font = graphics.getFont().derive(Font.PLAIN, 7, Ui.UNITS_pt);
+			this.setFont(font);
+		}
 	}
 }

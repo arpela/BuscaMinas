@@ -7,10 +7,14 @@ import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
 import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.Screen;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.XYRect;
@@ -26,6 +30,8 @@ import net.rim.device.api.ui.component.table.TemplateColumnProperties;
 import net.rim.device.api.ui.component.table.TemplateRowProperties;
 import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.decor.Background;
+import net.rim.device.api.ui.decor.BackgroundFactory;
 import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
 
@@ -35,6 +41,8 @@ import net.rim.device.api.ui.decor.BorderFactory;
  */
 public class DetalleMulta extends MainScreen {
 	private static Screen detalleMultaScreen;
+	
+	private static ButtonField registroBtn;
 	
 	// Create and apply style
 	private RegionStyles style = new RegionStyles(BorderFactory.createSimpleBorder(
@@ -74,7 +82,7 @@ public class DetalleMulta extends MainScreen {
 //		}));
 //		add(darAlta);
 		
-		Bitmap bitmap_importante = Bitmap.getBitmapResource("importante.png");
+		Bitmap bitmap_importante = Bitmap.getBitmapResource(Util.getImageByResolution("importante"));
 		BitmapField importante = new BitmapField(bitmap_importante, BitmapField.FIELD_HCENTER);
 		add(importante);
 	}
@@ -105,10 +113,10 @@ public class DetalleMulta extends MainScreen {
 				
 				Field[] fields = new Field[6];
 				fields[BITMAP_LOGO] = new BitmapField((Bitmap) data[BITMAP_LOGO], BitmapField.VCENTER | BitmapField.HCENTER);
-				fields[SANCION_PUNTOS] = new RichTextField((String) data[SANCION_PUNTOS], Field.NON_FOCUSABLE| DrawStyle.HCENTER);
-				fields[FECHA] = new RichTextField((String) data[FECHA], Field.NON_FOCUSABLE);
-				fields[DNI] = new RichTextField((String) data[DNI], Field.NON_FOCUSABLE);
-				fields[MATRICULA] = new RichTextField((String) data[MATRICULA], Field.NON_FOCUSABLE);
+				fields[SANCION_PUNTOS] = new BlueRichTextField((String) data[SANCION_PUNTOS], Field.NON_FOCUSABLE| DrawStyle.HCENTER);
+				fields[FECHA] = new BlueRichTextField((String) data[FECHA], Field.NON_FOCUSABLE);
+				fields[DNI] = new GreyRichTextField((String) data[DNI], Field.NON_FOCUSABLE);
+				fields[MATRICULA] = new GreyRichTextField((String) data[MATRICULA], Field.NON_FOCUSABLE);
 				fields[RECURRIDA] = new RichTextField((String) data[RECURRIDA], Field.NON_FOCUSABLE);
 				return fields;
 			}
@@ -138,22 +146,22 @@ public class DetalleMulta extends MainScreen {
 	}
 
 	private Object getTableModel(Object[] datosMulta) {
-		Bitmap bitmap_logo = Bitmap.getBitmapResource("icono_euro_detalle_multa.png");
+		Bitmap bitmap_logo = Bitmap.getBitmapResource(Util.getImageByResolution("icono_euro_detalle_multa"));
 		String importeSancion = (String) datosMulta[Resultados.IMPORTE_SANCION];
 		String puntos = (String) datosMulta[Resultados.PUNTOS];
 		String fechaInfraccion = (String) datosMulta[Resultados.FECHA_INFRACCION];
 		String dni = (String) datosMulta[Resultados.DNI];
 		String matricula = (String) datosMulta[Resultados.MATRICULA];
 		String recurrible = (String) datosMulta[Resultados.RECURRIBLE];
-		
+		String msg = recurrible.equals("Recurrible") ? "para ser recurrida" : " Fuera de Plazo";
 		Object[] result = new Object[]{
 				bitmap_logo,
 				"Sanción: " + importeSancion + ", " + puntos,
 				"Fecha: " + fechaInfraccion,
 				"DNI: " + dni,
 				"Matrícula: " + matricula,
-				"Esta multa está " + recurrible + " para ser recurrida"
-		}; 
+				"Esta multa está " + msg
+						}; 
 		return result;
 	}
 	
@@ -164,28 +172,45 @@ public class DetalleMulta extends MainScreen {
 		for (int i = 0; i < headerFields.length; i++) {
 			gridFieldManager.insert(headerFields[i], i);
 		}
+		Background background = BackgroundFactory.createBitmapBackground(Bitmap.getBitmapResource(Util.getImageByResolution("barra_multa")));
+		gridFieldManager.setBackground(background);
 		return gridFieldManager;
 	}
 	
 	private Field[] getHeaderFields(){
-		ButtonField volverBtn = new ButtonField("Volver", ButtonField.FIELD_LEFT);
+		ButtonField volverBtn = new ButtonField("Volver", ButtonField.FIELD_LEFT){
+			public int getPreferredWidth(){
+				return 70;			}
+			public void layout(int width, int height){
+				super.layout(getPreferredWidth(), getPreferredHeight());
+				setExtent(getPreferredWidth(), getPreferredHeight());
+			}
+		};
 		volverBtn.setCommand(new Command(new CommandHandler() {
 			
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
 				UiApplication.getUiApplication().popScreen(detalleMultaScreen);
 			}
 		}));
-		RichTextField multa = new RichTextField("        Multa        ", RichTextField.FIELD_HCENTER | RichTextField.FIELD_VCENTER){
-		    public int getPreferredWidth() {
-		        return this.getFont().getAdvance(this.getLabel() + this.getText());
-		    }
-		    public void layout(int width, int height) {
-		    	super.layout(getPreferredWidth(), getPreferredHeight());
-		        setExtent(getPreferredWidth(), getPreferredHeight());
-		    }
+		RichTextField detalle = new RichTextField(){
+			public int getPreferredWidth(){
+				return 135;
+			}
+			public void layout(int width, int height){
+				super.layout(getPreferredWidth(), getPreferredHeight());
+				setExtent(getPreferredWidth(), getPreferredHeight());
+			}
 		};
 		
-		ButtonField registroBtn = new ButtonField("Dar alta", ButtonField.FIELD_RIGHT);
+		registroBtn = new ButtonField("Dar alta", ButtonField.FIELD_RIGHT){
+			public int getPreferredWidth(){
+				return 70;
+			}
+			public void layout(int width, int height){
+				super.layout(getPreferredWidth(), getPreferredHeight());
+				setExtent(getPreferredWidth(), getPreferredHeight());
+			}
+		};
 		registroBtn.setCommand(new Command(new CommandHandler() {
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
 				UiApplication.getUiApplication().pushScreen(new Registro());
@@ -193,7 +218,34 @@ public class DetalleMulta extends MainScreen {
 			}
 		}));
 		
-		Field[] headerFields = new Field[]{volverBtn, multa, registroBtn};
+		Field[] headerFields = new Field[]{volverBtn, detalle, registroBtn};
 		return headerFields;
+	}
+	
+	public class BlueRichTextField extends RichTextField{
+		
+		public BlueRichTextField(String text, long style) {
+			super(text, style);
+		}
+		
+		protected void paint(Graphics graphics) {
+			graphics.setColor(Color.DODGERBLUE);
+			super.paint(graphics);
+			Font font = graphics.getFont().derive(Font.BOLD, 7, Ui.UNITS_pt);
+			this.setFont(font);
+		}
+	}
+	public class GreyRichTextField extends RichTextField{
+		
+		public GreyRichTextField(String text, long style) {
+			super(text, style);
+		}
+		
+		protected void paint(Graphics graphics) {
+			graphics.setColor(Color.DIMGRAY);
+			super.paint(graphics);
+			Font font = graphics.getFont().derive(Font.PLAIN, 7, Ui.UNITS_pt);
+			this.setFont(font);
+		}
 	}
 }

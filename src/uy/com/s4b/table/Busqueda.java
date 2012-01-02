@@ -35,7 +35,8 @@ public class Busqueda extends MainScreen {
 	public Busqueda() {
 		super(Manager.NO_VERTICAL_SCROLL);
 		busquedaScreen = this;
-		Bitmap logoBuscaMultas = Bitmap.getBitmapResource("logo_buscaMultas.png");
+		String imgName = Util.getImageByResolution("logo_buscaMultas");
+		Bitmap logoBuscaMultas = Bitmap.getBitmapResource(imgName);
 		BitmapField bitmapLogo = new BitmapField(logoBuscaMultas, BitmapField.FIELD_HCENTER);
 		
 		LabelField dniLF = new LabelField("DNI ", NON_FOCUSABLE);
@@ -43,10 +44,16 @@ public class Busqueda extends MainScreen {
 		dni = new BasicEditField("", "11810233D", 9, BasicEditField.FILTER_DEFAULT | BasicEditField.NO_NEWLINE);
 		matricula = new BasicEditField("", "0000BBB", 9, BasicEditField.FILTER_DEFAULT | BasicEditField.NO_NEWLINE);
 		
-		XYEdges margin = new XYEdges(10, 0, 10, 0);
-		XYEdges edges = new XYEdges(2, 1, 1, 1);
+//		XYEdges margin = new XYEdges(10, 0, 10, 0);
+//		XYEdges edges = new XYEdges(2, 1, 1, 1);
+//		Border border = BorderFactory.createRoundedBorder(edges, Color.GRAY, Border.STYLE_FILLED);
+//		Background gradient = BackgroundFactory.createLinearGradientBackground(Color.WHITE, Color.WHITE, Color.LIGHTGRAY, Color.LIGHTGRAY);
+//		
+		XYEdges margin = new XYEdges(8, 0, 10, 0);
+		XYEdges edges = new XYEdges(3, 3, 2, 2);
 		Border border = BorderFactory.createRoundedBorder(edges, Color.GRAY, Border.STYLE_FILLED);
 		Background gradient = BackgroundFactory.createLinearGradientBackground(Color.WHITE, Color.WHITE, Color.LIGHTGRAY, Color.LIGHTGRAY);
+
 		
 		dni.setBackground(gradient);
 		matricula.setBackground(gradient);
@@ -68,13 +75,7 @@ public class Busqueda extends MainScreen {
 		grid2.insert(matricula, 3);
 		add(grid2);
 		
-		add(new BitmapField(Bitmap.getBitmapResource("whitespace.png")));
-		
-		ButtonField buscar = new ButtonField("Buscar Multas");
-		GridFieldManager grid3 = new GridFieldManager(2 , 1, 0);
-		grid3.insert(buscar, 0, FIELD_HCENTER);
-		grid3.insert(new BitmapField(Bitmap.getBitmapResource("leyenda_busqueda.png")), 1, FIELD_HCENTER);
-		add(grid3);
+
 		
         DatosBusqueda datosBusqueda = new DatosBusqueda() {
 			
@@ -87,6 +88,7 @@ public class Busqueda extends MainScreen {
 			}
 		};
 		
+		ButtonField buscar = new ButtonField("Buscar Multas", FIELD_VCENTER);
 		buscar.setCommandContext(datosBusqueda);
 		buscar.setCommand(new Command(new CommandHandler() {
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
@@ -99,6 +101,13 @@ public class Busqueda extends MainScreen {
 				}
 			}
 		}));
+
+		add(new BitmapField(Bitmap.getBitmapResource("whitespace.png")));
+		add(buscar);
+		add(new BitmapField(Bitmap.getBitmapResource("whitespace.png")));
+		
+		BitmapField leyenda = new BitmapField(Bitmap.getBitmapResource(Util.getImageByResolution("leyenda_busqueda")));
+		add(leyenda);
 	}
 	
 	interface DatosBusqueda{
